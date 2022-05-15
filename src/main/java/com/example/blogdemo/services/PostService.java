@@ -32,10 +32,4 @@ public interface PostService {
     //get all posts by search
     List<PostDto> searchPosts(String keyword);
 
-
-
-
-
-    
-
 }
