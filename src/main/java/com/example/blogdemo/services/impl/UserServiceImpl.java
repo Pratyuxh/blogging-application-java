@@ -5,7 +5,9 @@ import com.example.blogdemo.exceptions.ResourceNotFoundException;
 import com.example.blogdemo.payloads.UserDto;
 import com.example.blogdemo.repositories.UserRepo;
 import com.example.blogdemo.services.UserService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,8 +18,22 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepo userRepo;
 
-/*    @Autowired
-    private ModelMapper modelMapper;*/
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Override
+    public UserDto registerNewUser(UserDto userDto ) {
+
+        User user = this.modelMapper.map(userDto,  User.class);
+        //encoded the password
+        user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+        //roles
+
+        return null;
+    }
 
     // POST - create user
     @Override
