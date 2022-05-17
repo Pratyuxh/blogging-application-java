@@ -1,7 +1,7 @@
 package com.example.blogdemo.controllers;
 
-import com.example.blogdemo.payloads.JWTAuthRequest;
-import com.example.blogdemo.payloads.JWTAuthresponse;
+import com.example.blogdemo.payloads.JwtAuthRequest;
+import com.example.blogdemo.payloads.JwtAuthResponse;
 import com.example.blogdemo.security.JWTTokenHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/auth")
-public class AuthController  {
+@RequestMapping("/api/v1/auth/")
+public class AuthController {
 
     @Autowired
     private JWTTokenHelper jwtTokenHelper;
@@ -30,31 +30,34 @@ public class AuthController  {
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
-    public ResponseEntity<JWTAuthresponse> createToken(
-            @RequestBody JWTAuthRequest request){
+    public ResponseEntity<JwtAuthResponse> createToken(@RequestBody JwtAuthRequest request) throws Exception {
 
-    this.authenticate(request.getUsername(),request.getPassword());
+        this.authenticate(request.getUsername(), (String) request.getPassword());
 
-    UserDetails userDetails = this.userDetailsService.loadUserByUsername(request.getUsername());
+        UserDetails userDetails = this.userDetailsService.loadUserByUsername(request.getUsername());
 
-    String Token = this.jwtTokenHelper.generateToken(userDetails);
+        String token = this.jwtTokenHelper.generateToken(userDetails);
 
-    JWTAuthresponse response = new JWTAuthresponse();
-    response.setToken(Token);
-    return new ResponseEntity<JWTAuthresponse>(response, HttpStatus.OK);
+        JwtAuthResponse response = new JwtAuthResponse();
+        response.setToken(token);
+        return new ResponseEntity<JwtAuthResponse>(response, HttpStatus.OK);
+
     }
 
-    private void authenticate(String username, String password Object password){
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+    private void authenticate(String username, String password) throws Exception {
+
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
+                password);
+
         try {
+
             this.authenticationManager.authenticate(authenticationToken);
-        }catch (BadCredentialsException e){
-            System.out.println("Invalid Details!!");
-            try {
-                throw new Exception("Invalid username or password");
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+
+        } catch (BadCredentialsException e) {
+            System.out.println("Invalid Details !!");
+           // throw new ApiException("Invalid username or password !!");
         }
-        }
+
+    }
+
 }
